@@ -1,4 +1,5 @@
 #include <Novice.h>
+#include "Player.h"
 
 const char kWindowTitle[] = "LC1B_12_スズキ_イブキ_タイトル";
 
@@ -11,6 +12,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
 	char preKeys[256] = {0};
+
+	Player player;
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -25,7 +28,22 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓更新処理ここから
 		///
 
-		int test;
+		if (keys[DIK_A]) 
+		{
+			player.Move(Vector2{-5.0f, 0.0f});
+		}
+		if (keys[DIK_D])
+		{
+			player.Move(Vector2{5.0f, 0.0f});
+		}
+		if (keys[DIK_W])
+		{
+			player.Move(Vector2{0.0f, 5.0f});
+		}
+		if (keys[DIK_S])
+		{
+			player.Move(Vector2{0.0f, -5.0f});
+		}
 
 		///
 		/// ↑更新処理ここまで
@@ -34,7 +52,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓描画処理ここから
 		///
-
+		player.Draw();
 		///
 		/// ↑描画処理ここまで
 		///
