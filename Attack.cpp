@@ -5,7 +5,7 @@ namespace {
 	const WeaponData kWeapons[(int)WeaponType::kCount] = {
 		//  名前     攻撃力 前隙 持続 後隙  幅    高さ
 		{ "Sword",   10,    4,   6,   8,   70.0f, 40.0f },
-		{ "Axe",     30,    18,  8,   24,  80.0f, 70.0f },
+		{ "BigSword",     30,    18,  8,   24,  100.0f, 50.0f },
 		{ "Spear",   15,    8,   6,   14,  120.0f, 25.0f },
 	};
 }
