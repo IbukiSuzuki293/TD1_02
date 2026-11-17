@@ -1,5 +1,7 @@
 #include <Novice.h>
 #include "Player.h"
+#include "Stage.h"
+
 
 const char kWindowTitle[] = "LC1B_12_スズキ_イブキ_タイトル";
 
