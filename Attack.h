@@ -2,9 +2,9 @@
 #include "Vector2.h"
 
 enum class WeaponType {
-	Sword, // 剣: 軽くて速い
-	Axe,   // 斧: 重くて遅い
-	Spear, // 槍: 中間で射程が長い
+	Knife, // ナイフ: 軽くて速い
+	BigSword, // 大剣: 重くて遅い
+	Sword, // 槍: 中間で射程が長い
 	kCount
 };
 
@@ -23,7 +23,6 @@ class Attack
 public:
 	void SetWeapon(WeaponType type);
 	void NextWeapon();
-	void PrevWeapon();
 
 	void Start();                       // 攻撃開始(攻撃中なら無視)
 	void Update();                      // 毎フレーム呼ぶ
@@ -34,7 +33,7 @@ public:
 	const WeaponData& GetWeaponData() const;
 
 	// プレイヤー位置と向きから当たり判定の矩形を取得
-	void GetHitbox(const Vector2& playerPos, float facing, Vector2& outPos, Vector2& outSize) const;
+	void GetHitbox(const Vector2& playerPos, float playerSize, float facing, Vector2& outPos, Vector2& outSize) const;
 
 	// 1回の振りで同じ敵に複数回当たらないようにする
 	bool HasHit() const { return hasHit_; }
@@ -43,7 +42,7 @@ public:
 private:
 	enum class State { Idle, Startup, Active, Recovery };
 
-	WeaponType weapon_ = WeaponType::Sword;
+	WeaponType weapon_ = WeaponType::Knife;
 	State state_ = State::Idle;
 	int timer_ = 0;
 	bool hasHit_ = false;

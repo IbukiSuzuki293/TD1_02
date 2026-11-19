@@ -32,13 +32,23 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓更新処理ここから
 		///
 
-		// 更新処理
-		if (keys[DIK_A]) { player.Move(Vector2{ -5.0f, 0.0f }); facing = -1.0f; }
-		if (keys[DIK_D]) { player.Move(Vector2{ 5.0f, 0.0f }); facing = 1.0f; }
+		if (!player.IsDodging()) {
+			if (keys[DIK_A]) { player.Move(Vector2{ -5.0f, 0.0f }); facing = -1.0f; }
+			if (keys[DIK_D]) { player.Move(Vector2{ 5.0f, 0.0f }); facing = 1.0f; }
+		}
+
+		// 回避(押した瞬間だけ反応させる)
+		if (!preKeys[DIK_E] && keys[DIK_E]) {
+			player.Dodge(facing);
+		}
+		// ジャンプ(押した瞬間だけ反応させる)
+		if (!player.IsDodging() && !preKeys[DIK_W] && keys[DIK_W]) {
+			player.Jump();
+		}
+		player.Update();
 
 		// 武器切り替え(押した瞬間だけ反応させる)
-		if (!preKeys[DIK_Q] && keys[DIK_Q]) attack.PrevWeapon();
-		if (!preKeys[DIK_E] && keys[DIK_E]) attack.NextWeapon();
+		if (!preKeys[DIK_J] && keys[DIK_J]) attack.NextWeapon();
 
 		// 攻撃
 		if (!preKeys[DIK_SPACE] && keys[DIK_SPACE]) attack.Start();
@@ -47,7 +57,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// 当たり判定(Bossができたらここで矩形同士の判定をする)
 		if (attack.IsHitboxActive() && !attack.HasHit()) {
 			Vector2 hbPos, hbSize;
-			attack.GetHitbox(player.GetPos(), facing, hbPos, hbSize);
+			attack.GetHitbox(player.GetPos(), player.GetSize(), facing, hbPos, hbSize);
 			// if (ボスと矩形が重なっている) {
 			//     boss.TakeDamage(attack.GetDamage());
 			//     attack.MarkHit(); // 1振り1ヒット
@@ -66,8 +76,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// 描画(デバッグ用に当たり判定を赤い箱で表示)
 		if (attack.IsHitboxActive()) {
 			Vector2 hbPos, hbSize;
-			attack.GetHitbox(player.GetPos(), facing, hbPos, hbSize);
-			Novice::DrawBox((int)hbPos.x, (int)hbPos.y, (int)hbSize.x, (int)hbSize.y, 0.0f, RED, kFillModeSolid);
+			attack.GetHitbox(player.GetPos(), player.GetSize(), facing, hbPos, hbSize);
+			Novice::DrawBox((int)hbPos.x, (int)hbPos.y * -1 + 800, (int)hbSize.x, (int)hbSize.y, 0.0f, RED, kFillModeSolid);
 		}
 
 		///
