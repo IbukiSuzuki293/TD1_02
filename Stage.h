@@ -7,6 +7,7 @@ enum class StageType {
 	Boss//ボス
 };
 class Stage{
+
 public:
 	//初期化
 	void Initialize();
@@ -22,7 +23,8 @@ private:
 	MapChip mapChip;
 
 	//現在のステージ
-	StageType currentStage;
+	//注意書きがあったので初期値を宣言しています↓
+	StageType currentStage = StageType::Tutorial;
 
 };
 

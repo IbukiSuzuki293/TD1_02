@@ -11,6 +11,7 @@ public:
 	void Draw();
 
 private:
+	bool csvOpen = false;//読み込めているかのテスト用
 	//マップデータ
 	std::vector<std::vector<int>>mapData;
 
@@ -20,11 +21,13 @@ private:
 	//マップサイズ
 	int mapWidth = 0;
 	int mapHeight = 0;
-	//マップチップのサイズ
-	static const int CHIP_SIZE = 32;
-
-	//Tilesetの横方向のチップ数
-	static const int TILE_COLUMNS = 8;
+	//マップチップのサイズ(基本64)
+	static const int CHIP_SIZE = 64;
+	//マップチップの全体の大きさ
+	static const int TILE_IMAGE_WIDTH = 256;//(タイルが増えたら基本ここを変える)
+	static const int TILE_IMAGE_HEIGHT = 64;
+	//TileSetの種類の数を下に記入(先頭の空白も数に入れる)
+	static const int TILE_COLUMNS = 4;
 	//マップの描画開始位置
 	Vector2 mapPosition = { 0.0f,0.0f };
 };

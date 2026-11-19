@@ -1,5 +1,5 @@
 #include "Stage.h"
-
+#include<Novice.h>
 void Stage::Initialize() {
 	//マップチップの初期化
 	mapChip.Initialize();
@@ -15,13 +15,13 @@ void Stage::ChangeStage(StageType type) {
 
 		//チュートリアル用のCSVを読み込み
 		mapChip.LoadMap(
-			"Resources/Maps/Tutorial.csv"
+			"./Resources/Maps/Tutorial.csv"
 		);
 		break;
 	case StageType::Boss:
 		//ボス戦用のステージCSVを読み込み
 		mapChip.LoadMap(
-			"Resources/Maps/Boss.csv"
+			"./Resources/Maps/Boss.csv"
 		);
 		break;
 	}

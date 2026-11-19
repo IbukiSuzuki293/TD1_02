@@ -5,22 +5,31 @@
 
 const char kWindowTitle[] = "LC1B_12_スズキ_イブキ_タイトル";
 
+
+
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// ライブラリの初期化
-	Novice::Initialize(kWindowTitle, 1280, 720);
+	Novice::Initialize(kWindowTitle, 1280, 704);
 
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
 	Player player;
+	//ステージ生成
+	Stage stage;
+
+	//ステージ初期化
+	stage.Initialize();
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
 		Novice::BeginFrame();
+		
 
 		// キー入力を受け取る
 		memcpy(preKeys, keys, 256);
@@ -47,6 +56,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			player.Move(Vector2{0.0f, -5.0f});
 		}
 
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -54,6 +64,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓描画処理ここから
 		///
+		
+		//ステージの描画
+		stage.Draw();
+
 		player.Draw();
 		///
 		/// ↑描画処理ここまで
