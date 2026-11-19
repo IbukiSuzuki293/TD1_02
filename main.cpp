@@ -32,17 +32,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓更新処理ここから
 		///
 
-		if (!player.IsDodging()) {
+		bool isSpecialStunned = attack.IsSpecialAttacking();
+
+		if (!player.IsDodging() && !isSpecialStunned) {
 			if (keys[DIK_A]) { player.Move(Vector2{ -5.0f, 0.0f }); facing = -1.0f; }
 			if (keys[DIK_D]) { player.Move(Vector2{ 5.0f, 0.0f }); facing = 1.0f; }
 		}
 
 		// 回避(押した瞬間だけ反応させる)
-		if (!preKeys[DIK_E] && keys[DIK_E]) {
+		if (!preKeys[DIK_K] && keys[DIK_K] && !isSpecialStunned) {
 			player.Dodge(facing);
 		}
 		// ジャンプ(押した瞬間だけ反応させる)
-		if (!player.IsDodging() && !preKeys[DIK_W] && keys[DIK_W]) {
+		if (!player.IsDodging() && !isSpecialStunned && !preKeys[DIK_W] && keys[DIK_W]) {
 			player.Jump();
 		}
 		player.Update();
@@ -52,16 +54,26 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		// 攻撃
 		if (!preKeys[DIK_SPACE] && keys[DIK_SPACE]) attack.Start();
-		attack.Update();
+		attack.Update(player.GetPos(), player.GetSize(), facing);
+
+		if (!player.IsDodging() && !preKeys[DIK_H] && keys[DIK_H])
+		{
+			attack.StartSpecial();
+		}
+
+		attack.Update(player.GetPos(), player.GetSize(), facing);
 
 		// 当たり判定(Bossができたらここで矩形同士の判定をする)
 		if (attack.IsHitboxActive() && !attack.HasHit()) {
 			Vector2 hbPos, hbSize;
 			attack.GetHitbox(player.GetPos(), player.GetSize(), facing, hbPos, hbSize);
-			// if (ボスと矩形が重なっている) {
-			//     boss.TakeDamage(attack.GetDamage());
-			//     attack.MarkHit(); // 1振り1ヒット
-			// }
+			// if (ボスとの当たり判定) {
+
+		// 2. 矢の当たり判定
+		Arrow* arrows = attack.GetArrows();
+		for (int i = 0; i < Attack::kMaxArrows; i++) {
+			if (!arrows[i].isActive) continue;
+			// if (ボスとの当たり判定) {
 		}
 
 		///
@@ -73,11 +85,25 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		
 		player.Draw();
-		// 描画(デバッグ用に当たり判定を赤い箱で表示)
 		if (attack.IsHitboxActive()) {
 			Vector2 hbPos, hbSize;
 			attack.GetHitbox(player.GetPos(), player.GetSize(), facing, hbPos, hbSize);
 			Novice::DrawBox((int)hbPos.x, (int)hbPos.y * -1 + 800, (int)hbSize.x, (int)hbSize.y, 0.0f, RED, kFillModeSolid);
+		}
+
+		const Arrow* constArrows = attack.GetArrows();
+		for (int i = 0; i < Attack::kMaxArrows; i++)
+		{
+			if (!constArrows[i].isActive) continue;
+			Novice::DrawBox(
+				(int)constArrows[i].pos.x,
+				(int)constArrows[i].pos.y * -1 + 800,
+				(int)constArrows[i].size.x,
+				(int)constArrows[i].size.y,
+				0.0f,
+				0xFFFF00FF,
+				kFillModeSolid
+			);
 		}
 
 		///

@@ -1,12 +1,14 @@
 #include "Attack.h"
+#include <math.h>
 
 namespace {
-	// 武器の数値はここだけ触れば調整できる
+	const float kPi = 3.14159265f;
+
 	const WeaponData kWeapons[(int)WeaponType::kCount] = {
-		//  名前     攻撃力 前隙 持続 後隙  幅    高さ
-		{ "Knife",   10,    4,   6,   8,   60.0f, 20.0f },
-		{ "BigSword",30,    18,  8,   24,  100.0f, 50.0f },
-		{ "Sword",   15,    8,   6,   14,  100.0f, 30.0f },
+		//  名前       攻撃力 前隙 持続  後隙      幅    高さ
+		{ "Sword",        30,    8,  20,   14,  70.0f,  64.0f },
+		{ "Bow",          10,   20,   4,   30,  24.0f,   8.0f },
+		{ "PileBunker", 1000,  200,  60,  200, 180.0f,  96.0f },
 	};
 }
 
@@ -18,7 +20,10 @@ void Attack::SetWeapon(WeaponType type)
 
 void Attack::NextWeapon()
 {
-	int next = ((int)weapon_ + 1) % (int)WeaponType::kCount;
+	if (IsAttacking()) return;
+	// Jキーでは通常武器(Sword と Bow の2種類)のみを切り替える
+	const int kNormalWeaponCount = 2;
+	int next = ((int)weapon_ + 1) % kNormalWeaponCount;
 	SetWeapon((WeaponType)next);
 }
 
@@ -30,8 +35,60 @@ void Attack::Start()
 	hasHit_ = false;
 }
 
-void Attack::Update()
+void Attack::StartSpecial()
 {
+	if (state_ != State::Idle) return;
+	prevWeapon_ = weapon_;
+	weapon_ = WeaponType::PileBunker;
+	state_ = State::Startup;
+	timer_ = 0;
+	hasHit_ = false;
+}
+
+void Attack::SpawnArrows(const Vector2& playerPos, const Vector2& playerSize, float facing)
+{
+	const WeaponData& w = GetWeaponData();
+	const float kArrowSpeed = 14.0f;
+	const float kAnglesDeg[3] = { 0.0f, 20.0f, 40.0f };
+
+	// 発射位置（プレイヤーの正面・中央の高さ）
+	float x = (facing > 0.0f) ? playerPos.x + playerSize.x : playerPos.x - w.width;
+	float y = playerPos.y - (playerSize.y - w.height) * 0.5f;
+
+	for (int angleIdx = 0; angleIdx < 3; angleIdx++) {
+		for (int i = 0; i < kMaxArrows; i++) {
+			if (!arrows_[i].isActive) {
+				float rad = kAnglesDeg[angleIdx] * (kPi / 180.0f);
+
+				arrows_[i].pos = { x, y };
+				arrows_[i].vel = {
+					cosf(rad) * kArrowSpeed * facing,
+					sinf(rad) * kArrowSpeed
+				};
+				arrows_[i].size = { w.width, w.height };
+				arrows_[i].damage = w.damage;
+				arrows_[i].isActive = true;
+				break;
+			}
+		}
+	}
+}
+
+void Attack::Update(const Vector2& playerPos, const Vector2& playerSize, float facing)
+{
+	// 1. 発射済みの矢の移動・画面外消去処理
+	for (int i = 0; i < kMaxArrows; i++) {
+		if (!arrows_[i].isActive) continue;
+
+		arrows_[i].pos.x += arrows_[i].vel.x;
+		arrows_[i].pos.y += arrows_[i].vel.y;
+
+		if (arrows_[i].pos.x < -100.0f || arrows_[i].pos.x > 1380.0f ||
+			arrows_[i].pos.y < 0.0f || arrows_[i].pos.y > 900.0f) {
+			arrows_[i].isActive = false;
+		}
+	}
+
 	if (state_ == State::Idle) return;
 
 	const WeaponData& w = GetWeaponData();
@@ -39,13 +96,29 @@ void Attack::Update()
 
 	switch (state_) {
 	case State::Startup:
-		if (timer_ >= w.startupFrames) { state_ = State::Active; timer_ = 0; }
+		if (timer_ >= w.startupFrames) {
+			state_ = State::Active;
+			timer_ = 0;
+			if (weapon_ == WeaponType::Bow) {
+				SpawnArrows(playerPos, playerSize, facing);
+			}
+		}
 		break;
 	case State::Active:
-		if (timer_ >= w.activeFrames) { state_ = State::Recovery; timer_ = 0; }
+		if (timer_ >= w.activeFrames) {
+			state_ = State::Recovery;
+			timer_ = 0;
+		}
 		break;
 	case State::Recovery:
-		if (timer_ >= w.recoveryFrames) { state_ = State::Idle; timer_ = 0; }
+		if (timer_ >= w.recoveryFrames) {
+			state_ = State::Idle;
+			timer_ = 0;
+			// 必殺技が終わったら元の武器に戻す
+			if (weapon_ == WeaponType::PileBunker) {
+				weapon_ = prevWeapon_;
+			}
+		}
 		break;
 	default:
 		break;
@@ -53,7 +126,18 @@ void Attack::Update()
 }
 
 bool Attack::IsAttacking() const { return state_ != State::Idle; }
-bool Attack::IsHitboxActive() const { return state_ == State::Active; }
+
+bool Attack::IsSpecialAttacking() const
+{
+	return state_ != State::Idle && weapon_ == WeaponType::PileBunker;
+}
+
+bool Attack::IsHitboxActive() const
+{
+	// 剣と必殺技のときに近接当たり判定を有効にする
+	return (weapon_ == WeaponType::Sword || weapon_ == WeaponType::PileBunker) && state_ == State::Active;
+}
+
 int Attack::GetDamage() const { return GetWeaponData().damage; }
 
 const WeaponData& Attack::GetWeaponData() const
@@ -61,13 +145,12 @@ const WeaponData& Attack::GetWeaponData() const
 	return kWeapons[(int)weapon_];
 }
 
-void Attack::GetHitbox(const Vector2& playerPos, float playerSize, float facing, Vector2& outPos, Vector2& outSize) const
+void Attack::GetHitbox(const Vector2& playerPos, const Vector2& playerSize, float facing, Vector2& outPos, Vector2& outSize) const
 {
 	const WeaponData& w = GetWeaponData();
 
 	outSize = { w.width, w.height };
-	// facing: 右向き=1.0f, 左向き=-1.0f
-	float x = (facing > 0.0f) ? playerPos.x + playerSize : playerPos.x - w.width;
-	float y = playerPos.y - (playerSize - w.height) * 0.5f;
+	float x = (facing > 0.0f) ? playerPos.x + playerSize.x : playerPos.x - w.width;
+	float y = playerPos.y - (playerSize.y - w.height) * 0.5f;
 	outPos = { x, y };
 }

@@ -1,7 +1,10 @@
 #include "Player.h"
 
 
-Player::Player() : pos_{ 640.0f, kGroundY_ } {}
+Player::Player() : pos_{ 640.0f, kGroundY_ } 
+{
+	textureHandle_ = Novice::LoadTexture("./Resources/player.png");
+}
 
 void Player::Move(const Vector2& delta)
 {
@@ -34,6 +37,13 @@ void Player::Dodge(float facing)
 
 void Player::Update()
 {
+	animTimer_++;
+	if (animTimer_ >= kAnimInterval_)
+	{
+		animTimer_ = 0;
+		animFrame_ = (animFrame_ + 1) % kMaxAnimFrames_;
+	}
+
 	// クールタイムのカウントダウン
 	if (dodgeCooldown_ > 0) {
 		dodgeCooldown_--;
@@ -42,7 +52,7 @@ void Player::Update()
 	// 回避中の移動処理
 	if (isDodging_) {
 		const int kDodgeDuration = 10;                             // 回避にかかるフレーム数
-		const float kDodgeDistance = kSize_ * 3.0f;                // プレイヤー3つ分 (100.0f)
+		const float kDodgeDistance = size_.x * 3.0f;                // プレイヤー3つ分
 		const float kDodgeSpeed = kDodgeDistance / kDodgeDuration; // 1フレームあたりの移動量
 
 		pos_.x += dodgeDir_ * kDodgeSpeed;
@@ -50,7 +60,7 @@ void Player::Update()
 
 		if (dodgeTimer_ >= kDodgeDuration) {
 			isDodging_ = false;
-			dodgeCooldown_ = 15; // 連続回避を防ぐクールタイム(15フレーム)
+			dodgeCooldown_ = 15; // 連続回避を防ぐクールタイム
 		}
 	}
 
@@ -67,13 +77,31 @@ void Player::Update()
 	}
 }
 
-Vector2 Player::GetPos() const
-{
-	return pos_;
-}
+//Vector2 Player::GetPos() const
+//{
+//	return pos_;
+//}
 
 
 void Player::Draw() const
 {
-	Novice::DrawBox((int)pos_.x, (int)pos_.y * -1 + 800, (int)kSize_, (int)kSize_, 0.0f, WHITE, kFillModeSolid);
+	int left = (int)pos_.x;
+	int top = (int)pos_.y * -1 + 800;
+	int right = left + (int)size_.x;
+	int bottom = top + (int)size_.y;
+
+	// 左から64ずつ切り取る位置
+	int srcX = animFrame_ * kSrcWidth_;
+	int srcY = 0;
+
+	Novice::DrawQuad(
+		left, top,       // 左上
+		right, top,      // 右上
+		left, bottom,    // 左下
+		right, bottom,   // 右下
+		srcX, srcY,      // 画像の切り取り開始位置
+		kSrcWidth_, kSrcHeight_, // 切り取る幅・高さ
+		textureHandle_,
+		WHITE
+	);
 }
