@@ -29,10 +29,22 @@ void Attack::NextWeapon()
 
 void Attack::Start()
 {
-	if (state_ != State::Idle) return;
-	state_ = State::Startup;
-	timer_ = 0;
-	hasHit_ = false;
+	// 1. 待機状態からの1段目攻撃
+	if (state_ == State::Idle) {
+		state_ = State::Startup;
+		timer_ = 0;
+		hasHit_ = false;
+		comboCount_ = (weapon_ == WeaponType::Sword) ? 1 : 0;
+		return;
+	}
+
+	// 2. 剣のときのみ、後隙(Recovery)中の入力で3コンボ目まで派生
+	if (weapon_ == WeaponType::Sword && state_ == State::Recovery && comboCount_ < kMaxCombo) {
+		comboCount_++;
+		state_ = State::Startup;
+		timer_ = 0;
+		hasHit_ = false; // 次のコンボでもう一度ヒット判定が出るようにリセット
+	}
 }
 
 void Attack::StartSpecial()
@@ -74,6 +86,7 @@ void Attack::SpawnArrows(const Vector2& playerPos, const Vector2& playerSize, fl
 	}
 }
 
+
 void Attack::Update(const Vector2& playerPos, const Vector2& playerSize, float facing)
 {
 	// 1. 発射済みの矢の移動・画面外消去処理
@@ -114,6 +127,7 @@ void Attack::Update(const Vector2& playerPos, const Vector2& playerSize, float f
 		if (timer_ >= w.recoveryFrames) {
 			state_ = State::Idle;
 			timer_ = 0;
+			comboCount_ = 0; // コンボ終了でリセット
 			// 必殺技が終わったら元の武器に戻す
 			if (weapon_ == WeaponType::PileBunker) {
 				weapon_ = prevWeapon_;

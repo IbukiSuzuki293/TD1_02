@@ -30,6 +30,7 @@ class Attack
 {
 public:
 	static constexpr int kMaxArrows = 10;
+	static constexpr int kMaxCombo = 3;
 
 	void SetWeapon(WeaponType type);
 	void NextWeapon();
@@ -43,6 +44,7 @@ public:
 	bool IsSpecialAttacking() const; // 必殺技による硬直中かどうか
 	bool IsHitboxActive() const;     // 当たり判定が出ている間だけtrue
 	int GetDamage() const;
+	int GetComboCount() const { return comboCount_; }
 	const WeaponData& GetWeaponData() const;
 
 	// プレイヤー位置と向きから当たり判定の矩形を取得
@@ -64,6 +66,7 @@ private:
 	WeaponType prevWeapon_ = WeaponType::Sword; // 必殺技前に持っていた武器を記憶
 	State state_ = State::Idle;
 	int timer_ = 0;
+	int comboCount_ = 0;
 	bool hasHit_ = false;
 
 	Arrow arrows_[kMaxArrows];

@@ -8,7 +8,7 @@ const char kWindowTitle[] = "LC1B_12_スズキ_イブキ_タイトル";
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// ライブラリの初期化
-	Novice::Initialize(kWindowTitle, 1280, 720);
+	Novice::Initialize(kWindowTitle, 1280, 704);
 
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
@@ -54,9 +54,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		// 攻撃
 		if (!preKeys[DIK_SPACE] && keys[DIK_SPACE]) attack.Start();
-		attack.Update(player.GetPos(), player.GetSize(), facing);
 
-		if (!player.IsDodging() && !preKeys[DIK_H] && keys[DIK_H])
+		if (!player.IsDodging() && !preKeys[DIK_P] && keys[DIK_P])
 		{
 			attack.StartSpecial();
 		}
@@ -67,13 +66,16 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (attack.IsHitboxActive() && !attack.HasHit()) {
 			Vector2 hbPos, hbSize;
 			attack.GetHitbox(player.GetPos(), player.GetSize(), facing, hbPos, hbSize);
-			// if (ボスとの当たり判定) {
+			// if (ボスと矩形が重なっている) {
+			// }
+		}
 
 		// 2. 矢の当たり判定
 		Arrow* arrows = attack.GetArrows();
 		for (int i = 0; i < Attack::kMaxArrows; i++) {
 			if (!arrows[i].isActive) continue;
-			// if (ボスとの当たり判定) {
+			// if (ボスと矩形が重なっている) {
+			// }
 		}
 
 		///
@@ -88,7 +90,20 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (attack.IsHitboxActive()) {
 			Vector2 hbPos, hbSize;
 			attack.GetHitbox(player.GetPos(), player.GetSize(), facing, hbPos, hbSize);
-			Novice::DrawBox((int)hbPos.x, (int)hbPos.y * -1 + 800, (int)hbSize.x, (int)hbSize.y, 0.0f, RED, kFillModeSolid);
+
+			unsigned int attackColor = RED;
+			if (attack.GetWeapon() == WeaponType::Sword) {
+				switch (attack.GetComboCount()) {
+				case 1: attackColor = RED;   break; // 1コンボ目：赤
+				case 2: attackColor = GREEN; break; // 2コンボ目：緑
+				case 3: attackColor = BLUE;  break; // 3コンボ目：青
+				}
+			}
+			else if (attack.GetWeapon() == WeaponType::PileBunker) {
+				attackColor = 0xFF00FFFF;           // 必殺技：マゼンタ
+			}
+
+			Novice::DrawBox((int)hbPos.x, (int)hbPos.y * -1 + 800, (int)hbSize.x, (int)hbSize.y, 0.0f, attackColor, kFillModeSolid);
 		}
 
 		const Arrow* constArrows = attack.GetArrows();
