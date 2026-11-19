@@ -1,8 +1,12 @@
 #include <Novice.h>
 #include "Player.h"
+#include "Stage.h"
 #include "Attack.h"
 
 const char kWindowTitle[] = "LC1B_12_スズキ_イブキ_タイトル";
+
+
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
@@ -15,6 +19,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char preKeys[256] = {0};
 
 	Player player;
+	//ステージ生成
+	Stage stage;
+
+	//ステージ初期化
+	stage.Initialize();
 
 	Attack attack;
 	float facing = 1.0f;
@@ -23,6 +32,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
 		Novice::BeginFrame();
+		
 
 		// キー入力を受け取る
 		memcpy(preKeys, keys, 256);
@@ -78,6 +88,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			// }
 		}
 
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -86,6 +97,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓描画処理ここから
 		///
 		
+		//ステージの描画
+		stage.Draw();
 		player.Draw();
 		if (attack.IsHitboxActive()) {
 			Vector2 hbPos, hbSize;
