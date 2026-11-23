@@ -26,6 +26,9 @@ void Stage::ChangeStage(StageType type) {
 		break;
 	}
 }
+void Stage::Update(Player& player) {
+	player.Update(mapChip);
+}
 void Stage::Draw() {
 	//マップの描画をします
 	mapChip.Draw();
