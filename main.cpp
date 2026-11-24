@@ -1,5 +1,6 @@
 #include <Novice.h>
 #include "Player.h"
+#include "Boss.h"
 #include "Stage.h"
 #include "Attack.h"
 
@@ -28,6 +29,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Attack attack;
 	float facing = 1.0f;
 
+	Boss boss;
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -41,6 +43,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓更新処理ここから
 		///
+		
+		//ボスの倍速　この数値を増やすとボスが機敏になります
+		boss.Update(0.02f);
 
 		bool isSpecialStunned = attack.IsSpecialAttacking();
 		bool isAttacking = attack.IsAttacking();
@@ -94,10 +99,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↑更新処理ここまで
 		///
-
+		
 		///
 		/// ↓描画処理ここから
 		///
+		player.Draw();
+
+		boss.Draw();
 		
 		//ステージの描画
 		

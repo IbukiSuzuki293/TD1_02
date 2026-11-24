@@ -29,6 +29,9 @@
     <ClCompile Include="Boss.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
+    <ClCompile Include="BodyPart.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
     <ClCompile Include="MapChip.cpp">
       <Filter>KamataEngine</Filter>
     </ClCompile>
@@ -121,6 +124,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Boss.h" />
     <ClInclude Include="Vector2.h" />
+    <ClInclude Include="BodyPart.h" />
     <ClInclude Include="MapChip.h" />
     <ClInclude Include="Stage.h">
       <Filter>KamataEngine\Stage</Filter>
