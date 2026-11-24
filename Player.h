@@ -11,7 +11,7 @@ public:
 	void Jump();
 	void Dodge(float facing);
 	void Update();
-	void Draw() const;
+	void Draw(float facing) const;
 	Vector2 GetPos() const { return pos_; }
 	Vector2 GetSize() const { return size_; }
 	void GetHitbox(Vector2& outPos, Vector2& outSize) const
@@ -34,6 +34,7 @@ private:
 	float dodgeDir_ = 1.0f;
 
 	int textureHandle_ = -1;
+	int textureHandleReverse_ = -1;
 	int animTimer_ = 0;
 	int animFrame_ = 0;
 	static constexpr int kAnimInterval_ = 15;

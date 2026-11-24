@@ -3,7 +3,8 @@
 
 Player::Player() : pos_{ 640.0f, kGroundY_ } 
 {
-	textureHandle_ = Novice::LoadTexture("./Resources/player.png");
+	textureHandle_ = Novice::LoadTexture("./Resources/stand.png");
+	textureHandleReverse_ = Novice::LoadTexture("./Resources/stand2.png");
 }
 
 void Player::Move(const Vector2& delta)
@@ -77,13 +78,9 @@ void Player::Update()
 	}
 }
 
-//Vector2 Player::GetPos() const
-//{
-//	return pos_;
-//}
 
 
-void Player::Draw() const
+void Player::Draw(float facing) const
 {
 	int left = (int)pos_.x;
 	int top = (int)pos_.y * -1 + 800;
@@ -94,14 +91,30 @@ void Player::Draw() const
 	int srcX = animFrame_ * kSrcWidth_;
 	int srcY = 0;
 
-	Novice::DrawQuad(
-		left, top,       // 左上
-		right, top,      // 右上
-		left, bottom,    // 左下
-		right, bottom,   // 右下
-		srcX, srcY,      // 画像の切り取り開始位置
-		kSrcWidth_, kSrcHeight_, // 切り取る幅・高さ
-		textureHandle_,
-		WHITE
-	);
+	if (facing > 0)
+	{
+		Novice::DrawQuad(
+			left, top,       // 左上
+			right, top,      // 右上
+			left, bottom,    // 左下
+			right, bottom,   // 右下
+			srcX, srcY,      // 画像の切り取り開始位置
+			kSrcWidth_, kSrcHeight_, // 切り取る幅・高さ
+			textureHandle_,
+			WHITE
+		);
+	}
+	else
+	{
+		Novice::DrawQuad(
+			left, top,       // 左上
+			right, top,      // 右上
+			left, bottom,    // 左下
+			right, bottom,   // 右下
+			srcX, srcY,      // 画像の切り取り開始位置
+			kSrcWidth_, kSrcHeight_, // 切り取る幅・高さ
+			textureHandleReverse_,
+			WHITE
+		);
+	}
 }
