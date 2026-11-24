@@ -14,6 +14,9 @@
     <Filter Include="KamataEngine\Adapter">
       <UniqueIdentifier>{c6468eb4-788b-4a83-b207-a5f4804e56c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="KamataEngine\Stage">
+      <UniqueIdentifier>{0711861e-f0b9-46aa-971d-8b82f2ba78fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -28,6 +31,12 @@
     </ClCompile>
     <ClCompile Include="BodyPart.cpp">
       <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="MapChip.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage.cpp">
+      <Filter>KamataEngine\Stage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,5 +125,9 @@
     <ClInclude Include="Boss.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="BodyPart.h" />
+    <ClInclude Include="MapChip.h" />
+    <ClInclude Include="Stage.h">
+      <Filter>KamataEngine\Stage</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
