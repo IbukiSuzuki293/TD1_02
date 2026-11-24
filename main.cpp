@@ -1,5 +1,6 @@
 #include <Novice.h>
 #include "Player.h"
+#include "Boss.h"
 
 const char kWindowTitle[] = "LC1B_12_スズキ_イブキ_タイトル";
 
@@ -15,6 +16,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	Player player;
 
+	Boss boss;
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -27,6 +29,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓更新処理ここから
 		///
+		
+		//ボスの倍速　この数値を増やすとボスが機敏になります
+		boss.Update(0.02f);
 
 		if (keys[DIK_A]) 
 		{
@@ -48,11 +53,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↑更新処理ここまで
 		///
-
+		
 		///
 		/// ↓描画処理ここから
 		///
 		player.Draw();
+
+		boss.Draw();
 		///
 		/// ↑描画処理ここまで
 		///
