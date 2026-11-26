@@ -12,6 +12,7 @@ public:
 	void Jump();
 	void Dodge(float facing);
 	void Update(MapChip& mapChip);
+	void AnimUpdate();
 	void Draw(float facing) const;
 	Vector2 GetPos() const { return pos_; }
 	Vector2 GetSize() const { return size_; }

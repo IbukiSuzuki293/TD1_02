@@ -85,57 +85,6 @@ void Player::SetAttackingMotion(bool isAttacking, WeaponType weaponType)
 
 void Player::Update(MapChip& mapChip)
 {
-	AnimaState next = AnimaState::stand;
-	if (isAttacking_)
-	{
-		switch (weaponType_)
-		{
-		case WeaponType::Sword: next = AnimaState::sword; break;
-		case WeaponType::Bow: next = AnimaState::bow; break;
-		case WeaponType::PileBunker: next = AnimaState::pile; break;
-		}
-	}
-	else if (velocityY_ > 0.0f)
-	{
-		next = AnimaState::up;
-	}
-	else if (velocityY_ < 0.0f)
-	{
-		next = AnimaState::down;
-	}
-	else if (isMoving_)
-	{
-		next = AnimaState::walk;
-	}
-	else if (isDodging_)
-	{
-		next = AnimaState::dodge;
-	}
-
-	if (next != animaState_)
-	{
-		animaState_ = next;
-		animTimer_ = 0;
-		animFrame_ = 0;
-	}
-	else
-	{
-		const AnimData& anim = kAnims[(int)animaState_];
-		animTimer_++;
-		if (animTimer_ >= kAnimInterval_)
-		{
-			animTimer_ = 0;
-			if (anim.loop)
-			{
-				animFrame_ = (animFrame_ + 1) % kMaxAnimFrames_;
-			}
-			else if (animFrame_ < anim.frameCount - 1)
-			{
-				animFrame_++;
-			}
-		}
-	}
-	isMoving_ = false;
 	
 
 	// クールタイムのカウントダウン
@@ -256,6 +205,64 @@ void Player::Update(MapChip& mapChip)
 		//判定後の座標を反映
 		pos_.y = nextY;
 	}
+
+	
+}
+
+void Player::AnimUpdate()
+{
+
+	AnimaState next = AnimaState::stand;
+	if (isAttacking_)
+	{
+		switch (weaponType_)
+		{
+		case WeaponType::Sword: next = AnimaState::sword; break;
+		case WeaponType::Bow: next = AnimaState::bow; break;
+		case WeaponType::PileBunker: next = AnimaState::pile; break;
+		}
+	}
+	else if (velocityY_ > 0.0f)
+	{
+		next = AnimaState::up;
+	}
+	else if (velocityY_ < 0.0f)
+	{
+		next = AnimaState::down;
+	}
+	else if (isMoving_)
+	{
+		next = AnimaState::walk;
+	}
+	else if (isDodging_)
+	{
+		next = AnimaState::dodge;
+	}
+
+	if (next != animaState_)
+	{
+		animaState_ = next;
+		animTimer_ = 0;
+		animFrame_ = 0;
+	}
+	else
+	{
+		const AnimData& anim = kAnims[(int)animaState_];
+		animTimer_++;
+		if (animTimer_ >= kAnimInterval_)
+		{
+			animTimer_ = 0;
+			if (anim.loop)
+			{
+				animFrame_ = (animFrame_ + 1) % kMaxAnimFrames_;
+			}
+			else if (animFrame_ < anim.frameCount - 1)
+			{
+				animFrame_++;
+			}
+		}
+	}
+	isMoving_ = false;
 }
 
 

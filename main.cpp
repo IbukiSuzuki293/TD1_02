@@ -66,7 +66,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 		stage.Update(player);
 		player.SetAttackingMotion(isAttacking, attack.GetWeapon());
-		player.Update(MapChip& mapChip);
+		player.AnimUpdate();
 
 		// 武器切り替え(押した瞬間だけ反応させる)
 		if (!preKeys[DIK_J] && keys[DIK_J]) attack.NextWeapon();
