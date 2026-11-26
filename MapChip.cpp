@@ -87,3 +87,17 @@ void MapChip::Draw() {
 		
 	}
 }
+//マップチップの当たり判定
+bool MapChip::IsSolid(int x, int y) {
+	if (x < 0 || x >= mapWidth ||
+		y < 0 || y >= mapHeight) {
+		return true;
+	}
+	//マップのタイルIDを取得
+	int id = mapData[y][x];
+	//IDが1(壁と床)なら通れない
+	if (id == 1 || id == 2) {
+		return true;
+	}
+	return false;
+}

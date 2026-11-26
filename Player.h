@@ -2,6 +2,7 @@
 #include <Novice.h>
 #include "Vector2.h"
 #include "Attack.h"
+#include "MapChip.h"
 
 class Player
 {
@@ -10,7 +11,7 @@ public:
 	void Move(const Vector2& delta);
 	void Jump();
 	void Dodge(float facing);
-	void Update();
+	void Update(MapChip& mapChip);
 	void Draw(float facing) const;
 	Vector2 GetPos() const { return pos_; }
 	Vector2 GetSize() const { return size_; }
@@ -65,6 +66,7 @@ private:
 	static constexpr int kSrcHeight_ = 64;
 	static constexpr int kMaxAnimFrames_ = 4;
 	
+	float moveInputX_ = 0.0f;
 };
 
 

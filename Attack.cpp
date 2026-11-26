@@ -65,7 +65,7 @@ void Attack::SpawnArrows(const Vector2& playerPos, const Vector2& playerSize, fl
 
 	// 発射位置（プレイヤーの正面・中央の高さ）
 	float x = (facing > 0.0f) ? playerPos.x + playerSize.x : playerPos.x - w.width;
-	float y = playerPos.y - (playerSize.y - w.height) * 0.5f;
+	float y = playerPos.y + (playerSize.y + w.height);
 
 	for (int angleIdx = 0; angleIdx < 3; angleIdx++) {
 		for (int i = 0; i < kMaxArrows; i++) {
@@ -165,6 +165,6 @@ void Attack::GetHitbox(const Vector2& playerPos, const Vector2& playerSize, floa
 
 	outSize = { w.width, w.height };
 	float x = (facing > 0.0f) ? playerPos.x + playerSize.x : playerPos.x - w.width;
-	float y = playerPos.y - (playerSize.y - w.height) * 0.5f;
+	float y = playerPos.y + (playerSize.y + w.height * 2.0f) * 0.5f;
 	outPos = { x, y };
 }

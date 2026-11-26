@@ -9,7 +9,8 @@ public:
 	void LoadMap(const char* fileName);
 	//マップ描画
 	void Draw();
-
+	//マップの当たり判定
+	bool IsSolid(int x, int y);
 private:
 	bool csvOpen = false;//読み込めているかのテスト用
 	//マップデータ
@@ -23,7 +24,7 @@ private:
 	int mapHeight = 0;
 	//マップチップのサイズ(基本64)
 	static const int CHIP_SIZE = 64;
-	//マップチップの全体の大きさ
+	//タイルセットの全体の大きさ
 	static const int TILE_IMAGE_WIDTH = 256;//(タイルが増えたら基本ここを変える)
 	static const int TILE_IMAGE_HEIGHT = 64;
 	//TileSetの種類の数を下に記入(先頭の空白も数に入れる)

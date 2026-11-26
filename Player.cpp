@@ -44,6 +44,7 @@ Player::Player() : pos_{ 640.0f, kGroundY_ }
 
 void Player::Move(const Vector2& delta)
 {
+	moveInputX_ += delta.x;
 	pos_.x += delta.x;
 	pos_.y += delta.y;
 	if (delta.x != 0.0f)
@@ -82,7 +83,7 @@ void Player::SetAttackingMotion(bool isAttacking, WeaponType weaponType)
 	weaponType_ = weaponType;
 }
 
-void Player::Update()
+void Player::Update(MapChip& mapChip)
 {
 	AnimaState next = AnimaState::stand;
 	if (isAttacking_)
@@ -145,21 +146,21 @@ void Player::Update()
 	
 
 	// 回避中の移動処理
-	if (isDodging_) {
-		const int kDodgeDuration = 10;                             // 回避にかかるフレーム数
-		const float kDodgeDistance = size_.x * 3.0f;                // プレイヤー3つ分
-		const float kDodgeSpeed = kDodgeDistance / kDodgeDuration; // 1フレームあたりの移動量
+	//if (isDodging_) {
+	//	const int kDodgeDuration = 10;                             // 回避にかかるフレーム数
+	//	const float kDodgeDistance = size_.x * 3.0f;                // プレイヤー3つ分
+	//	const float kDodgeSpeed = kDodgeDistance / kDodgeDuration; // 1フレームあたりの移動量
 
-		pos_.x += dodgeDir_ * kDodgeSpeed;
-		dodgeTimer_++;
+	//	pos_.x += dodgeDir_ * kDodgeSpeed;
+	//	dodgeTimer_++;
 
-		if (dodgeTimer_ >= kDodgeDuration) {
-			isDodging_ = false;
-			dodgeCooldown_ = 15; // 連続回避を防ぐクールタイム
-		}
-	}
+	//	if (dodgeTimer_ >= kDodgeDuration) {
+	//		isDodging_ = false;
+	//		dodgeCooldown_ = 15; // 連続回避を防ぐクールタイム
+	//	}
+	//}
 
-	if (!isGrounded_ && !isDodging_) {
+	/*if (!isGrounded_ && !isDodging_) {
 		const float kGravity = 0.8f;
 		velocityY_ -= kGravity;
 		pos_.y += velocityY_;
@@ -169,6 +170,91 @@ void Player::Update()
 			velocityY_ = 0.0f;
 			isGrounded_ = true;
 		}
+	}*/
+	//壁の当たり判定
+	float moveX = moveInputX_;
+	moveInputX_ = 0.0f;
+
+	if (isDodging_) {
+		const int kDodgeDuration = 10;
+		const float kDodgeDistance = size_.x * 3.0f;
+		const float kDodgeSpeed =
+			kDodgeDistance / kDodgeDuration;
+
+		moveX = dodgeDir_ * kDodgeSpeed;
+
+		dodgeTimer_++;
+		if (dodgeTimer_ >= kDodgeDuration) {
+			isDodging_ = false;
+			dodgeCooldown_ = 15;
+		}
+	}
+	//移動先のx座標
+	float nextX = pos_.x + moveX;
+	//プレイヤーの上下端
+	int screenTop = static_cast<int>(704.0f - pos_.y);
+	int screenBottom = screenTop + static_cast<int>(size_.y);
+	//右に移動するとき
+	if (moveX > 0.0f) {
+		int chipX = static_cast<int>((nextX + size_.x - 1) / 64.0f);
+		int chipY1 = screenTop / 64;
+		int chipY2 = (screenBottom - 1) / 64;
+		
+		if (mapChip.IsSolid(chipX, chipY1) ||
+			mapChip.IsSolid(chipX, chipY2)) {
+			//壁の左側で止める
+			nextX = chipX * 64.0f - size_.x;
+		}
+	}
+	//左に移動するとき
+	if (moveX < 0.0f) {
+		int chipX = static_cast<int>(nextX / 64.0f);
+		int chipY1 = screenTop / 64;
+		int chipY2 = (screenBottom - 1) / 64;
+
+		if (mapChip.IsSolid(chipX, chipY1) ||
+			mapChip.IsSolid(chipX, chipY2)) {
+			nextX = (chipX + 1) * 64.0f;
+		}
+	}
+	//判定結果を反映
+	pos_.x = nextX;
+	//Y方向の移動・当たり判定
+	if (!isGrounded_ && !isDodging_) {
+		const float kGravity = 0.8f;
+		velocityY_ -= kGravity;
+		//落下後のプレイヤーの位置
+		float nextY = pos_.y + velocityY_;
+		//移動先の画面上の上下端
+		int nextTop =
+			static_cast<int>(704.0f - nextY);
+		int nextBottom =
+			nextTop + static_cast<int>(size_.y);
+		int chipX1 = static_cast<int>(pos_.x / 64.0f);
+		int chipX2 = static_cast<int>((pos_.x + size_.x - 1) / 64.0f);
+		//下に落ちるとき
+		if (velocityY_ < 0.0f) {
+			//次に接触するマップチップブロックの行番号
+			int chipY = (nextBottom - 1) / 64;
+			if (mapChip.IsSolid(chipX1, chipY) ||
+				mapChip.IsSolid(chipX2, chipY)) {
+				//床の上で止める
+				nextY = 704.0f + size_.y - chipY * 64.0f;
+				velocityY_ = 0.0f;
+				isGrounded_ = true;
+			}
+		}
+		//上にジャンプするとき
+		else if (velocityY_ > 0.0f) {
+			int chipY = nextTop / 64;
+			if (mapChip.IsSolid(chipX1, chipY) ||
+				mapChip.IsSolid(chipX2, chipY)) {
+				nextY = 704.0f - (chipY + 1) * 64.0f;
+				velocityY_ = 0.0f;
+			}
+		}
+		//判定後の座標を反映
+		pos_.y = nextY;
 	}
 }
 
@@ -177,7 +263,7 @@ void Player::Update()
 void Player::Draw(float facing) const
 {
 	int left = (int)pos_.x;
-	int top = (int)pos_.y * -1 + 800;
+	int top = (int)pos_.y * -1 + 704;
 	int right = left + (int)size_.x;
 	int bottom = top + (int)size_.y;
 
