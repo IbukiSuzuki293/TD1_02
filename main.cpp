@@ -1,5 +1,6 @@
 #include <Novice.h>
 #include "Player.h"
+#include "Boss.h"
 #include "Stage.h"
 #include "Attack.h"
 
@@ -28,6 +29,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Attack attack;
 	float facing = 1.0f;
 
+	Boss boss;
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -41,29 +43,36 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↓更新処理ここから
 		///
+		
+		//ボスの倍速　この数値を増やすとボスが機敏になります
+		boss.Update(0.02f);
 
 		bool isSpecialStunned = attack.IsSpecialAttacking();
+		bool isAttacking = attack.IsAttacking();
 
-		if (!player.IsDodging() && !isSpecialStunned) {
+
+		if (!player.IsDodging() && !isSpecialStunned && !isAttacking) {
 			if (keys[DIK_A]) { player.Move(Vector2{ -5.0f, 0.0f }); facing = -1.0f; }
 			if (keys[DIK_D]) { player.Move(Vector2{ 5.0f, 0.0f }); facing = 1.0f; }
 		}
 
 		// 回避(押した瞬間だけ反応させる)
-		if (!preKeys[DIK_K] && keys[DIK_K] && !isSpecialStunned) {
+		if (!preKeys[DIK_K] && keys[DIK_K] && !isSpecialStunned && !isAttacking) {
 			player.Dodge(facing);
 		}
 		// ジャンプ(押した瞬間だけ反応させる)
-		if (!player.IsDodging() && !isSpecialStunned && !preKeys[DIK_W] && keys[DIK_W]) {
+		if (!player.IsDodging() && !isSpecialStunned && !isAttacking && !preKeys[DIK_W] && keys[DIK_W]) {
 			player.Jump();
 		}
 		stage.Update(player);
+		player.SetAttackingMotion(isAttacking, attack.GetWeapon());
+		player.Update(MapChip& mapChip);
 
 		// 武器切り替え(押した瞬間だけ反応させる)
 		if (!preKeys[DIK_J] && keys[DIK_J]) attack.NextWeapon();
 
 		// 攻撃
-		if (!preKeys[DIK_SPACE] && keys[DIK_SPACE]) attack.Start();
+		if (!player.IsDodging() && !preKeys[DIK_SPACE] && keys[DIK_SPACE]) attack.Start();
 
 		if (!player.IsDodging() && !preKeys[DIK_P] && keys[DIK_P])
 		{
@@ -92,14 +101,16 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		///
 		/// ↑更新処理ここまで
 		///
-
+		
 		///
 		/// ↓描画処理ここから
 		///
+
+		boss.Draw();
 		
 		//ステージの描画
-		stage.Draw();
-		player.Draw();
+		
+		player.Draw(facing);
 		if (attack.IsHitboxActive()) {
 			Vector2 hbPos, hbSize;
 			attack.GetHitbox(player.GetPos(), player.GetSize(), facing, hbPos, hbSize);
@@ -107,13 +118,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			unsigned int attackColor = RED;
 			if (attack.GetWeapon() == WeaponType::Sword) {
 				switch (attack.GetComboCount()) {
-				case 1: attackColor = RED;   break; // 1コンボ目：赤
-				case 2: attackColor = GREEN; break; // 2コンボ目：緑
-				case 3: attackColor = BLUE;  break; // 3コンボ目：青
+				case 1: attackColor = RED;   break; 
+				case 2: attackColor = GREEN; break; 
+				case 3: attackColor = BLUE;  break; 
 				}
 			}
 			else if (attack.GetWeapon() == WeaponType::PileBunker) {
-				attackColor = 0xFF00FFFF;           // 必殺技：マゼンタ
+				attackColor = 0xFF00FFFF;           
 			}
 
 			Novice::DrawBox((int)hbPos.x, (int)hbPos.y * -1 + 800, (int)hbSize.x, (int)hbSize.y, 0.0f, attackColor, kFillModeSolid);
@@ -133,6 +144,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				kFillModeSolid
 			);
 		}
+
+		stage.Draw();
 
 		///
 		/// ↑描画処理ここまで
