@@ -1,6 +1,5 @@
 #include "Player.h"
 
-
 Player::Player() : pos_{ 640.0f, kGroundY_ } 
 {
 	textureHandle_ = Novice::LoadTexture("./Resources/player.png");
@@ -63,7 +62,7 @@ void Player::Update(MapChip& mapChip)
 	//	}
 	//}
 
-	if (!isGrounded_ && !isDodging_) {
+	/*if (!isGrounded_ && !isDodging_) {
 		const float kGravity = 0.8f;
 		velocityY_ -= kGravity;
 		pos_.y += velocityY_;
@@ -73,7 +72,7 @@ void Player::Update(MapChip& mapChip)
 			velocityY_ = 0.0f;
 			isGrounded_ = true;
 		}
-	}
+	}*/
 	//壁の当たり判定
 	float moveX = moveInputX_;
 	moveInputX_ = 0.0f;
@@ -95,7 +94,7 @@ void Player::Update(MapChip& mapChip)
 	//移動先のx座標
 	float nextX = pos_.x + moveX;
 	//プレイヤーの上下端
-	int screenTop = static_cast<int>(800.0f - pos_.y);
+	int screenTop = static_cast<int>(704.0f - pos_.y);
 	int screenBottom = screenTop + static_cast<int>(size_.y);
 	//右に移動するとき
 	if (moveX > 0.0f) {
@@ -126,21 +125,23 @@ void Player::Update(MapChip& mapChip)
 	if (!isGrounded_ && !isDodging_) {
 		const float kGravity = 0.8f;
 		velocityY_ -= kGravity;
+		//落下後のプレイヤーの位置
 		float nextY = pos_.y + velocityY_;
 		//移動先の画面上の上下端
 		int nextTop =
-			static_cast<int>(800.0f - nextY);
+			static_cast<int>(704.0f - nextY);
 		int nextBottom =
 			nextTop + static_cast<int>(size_.y);
 		int chipX1 = static_cast<int>(pos_.x / 64.0f);
 		int chipX2 = static_cast<int>((pos_.x + size_.x - 1) / 64.0f);
 		//下に落ちるとき
 		if (velocityY_ < 0.0f) {
+			//次に接触するマップチップブロックの行番号
 			int chipY = (nextBottom - 1) / 64;
 			if (mapChip.IsSolid(chipX1, chipY) ||
 				mapChip.IsSolid(chipX2, chipY)) {
 				//床の上で止める
-				nextY = 800.0f - size_.y - chipY * 64.0f;
+				nextY = 704.0f + size_.y - chipY * 64.0f;
 				velocityY_ = 0.0f;
 				isGrounded_ = true;
 			}
@@ -150,7 +151,7 @@ void Player::Update(MapChip& mapChip)
 			int chipY = nextTop / 64;
 			if (mapChip.IsSolid(chipX1, chipY) ||
 				mapChip.IsSolid(chipX2, chipY)) {
-				nextY = 800.0f - (chipY + 1) * 64.0f;
+				nextY = 704.0f - (chipY + 1) * 64.0f;
 				velocityY_ = 0.0f;
 			}
 		}
@@ -168,7 +169,7 @@ void Player::Update(MapChip& mapChip)
 void Player::Draw() const
 {
 	int left = (int)pos_.x;
-	int top = (int)pos_.y * -1 + 800;
+	int top = (int)pos_.y * -1 + 704;
 	int right = left + (int)size_.x;
 	int bottom = top + (int)size_.y;
 
